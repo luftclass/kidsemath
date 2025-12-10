@@ -20,7 +20,7 @@ st.markdown(
 )
 
 # ---------------------------
-# 2. CSS 스타일 (✅ 시스템 기본 폰트 + S25+ 최적화)
+# 2. CSS 스타일 (시스템 기본 폰트 + 모바일 최적화)
 # ---------------------------
 st.markdown("""
 <style>
@@ -29,7 +29,7 @@ html, body {
     translate: no;
 }
 
-/* ✅ 시스템 기본 폰트 (최고속 로딩) */
+/* ✅ 시스템 기본 폰트 */
 .block-container {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     max-width: 430px;
@@ -67,26 +67,16 @@ h1.main-title {
     margin-bottom: 15px;
 }
 
-/* 보기 카드 */
-div[role="radiogroup"] {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 10px !important;
-    width: 100% !important;
-    flex-wrap: wrap !important;
-}
-
-div[class*="stRadio"] label {
-    background-color: #FFF9C4 !important;
-    border: 2px solid #FFF176 !important;
-    padding: 12px 20px !important;
-    border-radius: 14px !important;
-    box-shadow: 0 3px 0 #FDD835 !important;
-}
-
-div[class*="stRadio"] label div[data-testid="stMarkdownContainer"] p {
-    font-size: 20px !important;
+/* ✅ 보기 카드 공통 */
+.choice-card {
+    background-color: #FFF9C4;
+    border: 2px solid #FFF176;
+    padding: 14px 10px;
+    border-radius: 14px;
+    box-shadow: 0 3px 0 #FDD835;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 /* 버튼 */
@@ -137,9 +127,9 @@ if 'solved' not in st.session_state: st.session_state.solved = False
 # 4. 사운드
 # ---------------------------
 CORRECT_SOUNDS = [
-    "https://www.soundjay.com/buttons/sounds/button-3.mp3", 
-    "https://www.soundjay.com/human/sounds/applause-01.mp3", 
-    "https://www.soundjay.com/misc/sounds/magic-chime-01.mp3" 
+    "https://www.soundjay.com/buttons/sounds/button-3.mp3",
+    "https://www.soundjay.com/human/sounds/applause-01.mp3",
+    "https://www.soundjay.com/misc/sounds/magic-chime-01.mp3"
 ]
 WRONG_SOUND_FIXED = "https://www.soundjay.com/buttons/sounds/button-10.mp3"
 
@@ -154,7 +144,7 @@ def play_sound(url):
 # 5. 문제 생성
 # ---------------------------
 def generate_problem():
-    ops = ['+', '-'] 
+    ops = ['+', '-']
     op = random.choice(ops)
     n1 = random.randint(10, 30)
     n2 = random.randint(1, 20)
@@ -177,6 +167,7 @@ def generate_problem():
     st.session_state.problem_generated = True
     st.session_state.is_checked = False
     st.session_state.solved = False
+    st.session_state.selected = None
 
 # ---------------------------
 # 6. 세레모니
@@ -211,27 +202,68 @@ quiz_text = f"{st.session_state.num1} {st.session_state.operator} {st.session_st
 st.markdown(f"<div class='big-font'>{quiz_text}</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# 9. 문제 폼
+# 9. ✅ 보기 2×2 배열
 # ---------------------------
 with st.form("quiz_form"):
-    user_choice = st.radio(
-        "정답을 골라보세요:",
-        options=st.session_state.choices,
-        horizontal=True, 
-        label_visibility="collapsed",
-        disabled=st.session_state.solved
-    )
+
+    row1 = st.columns(2)
+    row2 = st.columns(2)
+
+    choices = st.session_state.choices
+
+    with row1[0]:
+        st.session_state.selected = st.radio(
+            "",
+            options=[choices[0]],
+            label_visibility="collapsed",
+            key="c1",
+            disabled=st.session_state.solved
+        )
+
+    with row1[1]:
+        st.session_state.selected = st.radio(
+            "",
+            options=[choices[1]],
+            label_visibility="collapsed",
+            key="c2",
+            disabled=st.session_state.solved
+        )
+
+    with row2[0]:
+        st.session_state.selected = st.radio(
+            "",
+            options=[choices[2]],
+            label_visibility="collapsed",
+            key="c3",
+            disabled=st.session_state.solved
+        )
+
+    with row2[1]:
+        st.session_state.selected = st.radio(
+            "",
+            options=[choices[3]],
+            label_visibility="collapsed",
+            key="c4",
+            disabled=st.session_state.solved
+        )
 
     submitted = st.form_submit_button(
-        "🚀 정답 확인하기", 
-        use_container_width=True, 
+        "🚀 정답 확인하기",
+        use_container_width=True,
         disabled=st.session_state.solved
     )
 
     if submitted:
         st.session_state.is_checked = True
-        
-        if user_choice == st.session_state.answer:
+
+        selected_value = (
+            st.session_state.c1 or
+            st.session_state.c2 or
+            st.session_state.c3 or
+            st.session_state.c4
+        )[0]
+
+        if selected_value == st.session_state.answer:
             st.session_state.score += 10
             st.session_state.solved = True
             st.session_state.stickers.append(random.choice(["⭐", "🍎", "🍩", "🤖", "🦄", "⚽"]))
