@@ -2,7 +2,7 @@ import streamlit as st
 import random
 
 # ---------------------------
-# 1. 페이지 설정 (✅ 모바일 최적: centered)
+# 1. 페이지 설정 (모바일 최적)
 # ---------------------------
 st.set_page_config(
     page_title="덧뺄셈 두자리",
@@ -10,7 +10,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# ✅ 자동 번역 완전 차단 (메타 태그)
+# ✅ 자동 번역 완전 차단
 st.markdown(
     """
     <meta name="google" content="notranslate">
@@ -20,28 +20,25 @@ st.markdown(
 )
 
 # ---------------------------
-# 2. CSS 스타일 (✅ S25+ 모바일 전용 최적화 + 감자꽃 폰트)
+# 2. CSS 스타일 (✅ 시스템 기본 폰트 + S25+ 최적화)
 # ---------------------------
 st.markdown("""
 <style>
-
-/* ✅ 감자꽃 폰트 */
-@import url('https://fonts.googleapis.com/css2?family=Gamja+Flower&display=swap');
 
 html, body {
     translate: no;
 }
 
-/* ✅ 전체 모바일 폭 제한 (갤럭시 S25+ 기준) */
+/* ✅ 시스템 기본 폰트 (최고속 로딩) */
 .block-container {
-    font-family: 'Gamja Flower', cursive !important;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     max-width: 430px;
     margin: 0 auto !important;
     padding-left: 10px !important;
     padding-right: 10px !important;
 }
 
-/* ✅ 서브 타이틀 */
+/* 서브 타이틀 */
 h2.sub-title {
     text-align: center !important;
     color: #888;
@@ -50,7 +47,7 @@ h2.sub-title {
     margin-bottom: 0;
 }
 
-/* ✅ 메인 타이틀 */
+/* 메인 타이틀 */
 h1.main-title {
     text-align: center !important;
     color: #FF6F00;
@@ -58,7 +55,7 @@ h1.main-title {
     margin-bottom: 10px;
 }
 
-/* ✅ 문제 박스 */
+/* 문제 박스 */
 .big-font {
     font-size: 38px !important;
     font-weight: bold;
@@ -70,7 +67,7 @@ h1.main-title {
     margin-bottom: 15px;
 }
 
-/* ✅ 보기 카드 */
+/* 보기 카드 */
 div[role="radiogroup"] {
     display: flex !important;
     justify-content: center !important;
@@ -92,7 +89,7 @@ div[class*="stRadio"] label div[data-testid="stMarkdownContainer"] p {
     font-size: 20px !important;
 }
 
-/* ✅ 버튼 */
+/* 버튼 */
 div.stButton > button {
     width: 100% !important;
     font-size: 18px !important;
@@ -103,7 +100,7 @@ div.stButton > button {
     border: none !important;
 }
 
-/* ✅ 정답 메시지 */
+/* 정답 메시지 */
 .success-msg {
     font-size: 22px;
     font-weight: bold;
@@ -111,7 +108,7 @@ div.stButton > button {
     text-align: center;
 }
 
-/* ✅ 스티커 박스 */
+/* 스티커 박스 */
 .sticker-box {
     font-size: 18px;
     text-align: center;
@@ -189,7 +186,7 @@ def show_ceremony():
     st.markdown("<div class='success-msg'>🎉 정답입니다!</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# 7. 사이드바 (모바일은 햄버거 메뉴)
+# 7. 사이드바
 # ---------------------------
 with st.sidebar:
     st.header(f"📒 점수: {st.session_state.score}점")
