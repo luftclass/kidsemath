@@ -235,50 +235,62 @@ quiz_text = f"{st.session_state.num1} {st.session_state.operator} {st.session_st
 st.markdown(f"<div class='big-font'>{quiz_text}</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# 9. ✅ 보기 2×2 배열 (Form 없이 직접 처리)
+# 9. ✅ 보기 2×2 고정 배열 (모바일에서도 유지)
 # ---------------------------
 if not st.session_state.show_result:
-    row1 = st.columns(2)
-    row2 = st.columns(2)
-
     choices = st.session_state.choices
 
-    # 각 버튼 클릭 시 즉시 처리
-    if row1[0].button(str(choices[0]), key="btn0", use_container_width=True):
-        st.session_state.selected = choices[0]
+    # 버튼 클릭 처리용 함수
+    def handle_click(selected_value):
+        st.session_state.selected = selected_value
         st.session_state.show_result = True
-        if st.session_state.selected == st.session_state.answer:
+        if selected_value == st.session_state.answer:
             st.session_state.score += 10
             st.session_state.solved = True
             st.session_state.stickers.append(random.choice(["⭐", "🍎", "🍩", "🤖", "🦄", "⚽"]))
         st.rerun()
-        
-    if row1[1].button(str(choices[1]), key="btn1", use_container_width=True):
-        st.session_state.selected = choices[1]
-        st.session_state.show_result = True
-        if st.session_state.selected == st.session_state.answer:
-            st.session_state.score += 10
-            st.session_state.solved = True
-            st.session_state.stickers.append(random.choice(["⭐", "🍎", "🍩", "🤖", "🦄", "⚽"]))
-        st.rerun()
-        
-    if row2[0].button(str(choices[2]), key="btn2", use_container_width=True):
-        st.session_state.selected = choices[2]
-        st.session_state.show_result = True
-        if st.session_state.selected == st.session_state.answer:
-            st.session_state.score += 10
-            st.session_state.solved = True
-            st.session_state.stickers.append(random.choice(["⭐", "🍎", "🍩", "🤖", "🦄", "⚽"]))
-        st.rerun()
-        
-    if row2[1].button(str(choices[3]), key="btn3", use_container_width=True):
-        st.session_state.selected = choices[3]
-        st.session_state.show_result = True
-        if st.session_state.selected == st.session_state.answer:
-            st.session_state.score += 10
-            st.session_state.solved = True
-            st.session_state.stickers.append(random.choice(["⭐", "🍎", "🍩", "🤖", "🦄", "⚽"]))
-        st.rerun()
+
+    # ✅ HTML을 이용한 2x2 고정 그리드 버튼
+    st.markdown("""
+        <style>
+        .choice-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 12px !important;
+            justify-content: center;
+            align-items: center;
+        }
+        .choice-grid button {
+            width: 100% !important;
+            padding: 14px 10px !important;
+            border-radius: 14px !important;
+            font-size: 24px !important;
+            font-weight: bold !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # HTML 그리드로 보기 버튼 렌더링
+    grid_html = "<div class='choice-grid'>"
+    for i, choice in enumerate(choices):
+        grid_html += f"""
+        <form action='?choice={choice}' method='get'>
+            <button type='submit' name='choice' value='{choice}' id='btn{i}'>{choice}</button>
+        </form>
+        """
+    grid_html += "</div>"
+
+    st.markdown(grid_html, unsafe_allow_html=True)
+
+    # URL 매개변수를 이용한 클릭 감지
+    import urllib.parse
+    query_params = st.query_params
+    if "choice" in query_params:
+        try:
+            handle_click(int(query_params["choice"]))
+        except:
+            pass
+
 
 # ---------------------------
 # 10. 결과 화면
