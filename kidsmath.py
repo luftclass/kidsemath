@@ -121,23 +121,13 @@ if 'problem_generated' not in st.session_state: st.session_state.problem_generat
 if 'stickers' not in st.session_state: st.session_state.stickers = []
 if 'solved' not in st.session_state: st.session_state.solved = False
 if 'selected' not in st.session_state: st.session_state.selected = None
+if 'show_result' not in st.session_state: st.session_state.show_result = False
 
 # ---------------------------
-# 4. 사운드
+# 4. ✅ 사운드 제거 (로딩 속도 개선)
 # ---------------------------
-CORRECT_SOUNDS = [
-    "https://www.soundjay.com/buttons/sounds/button-3.mp3",
-    "https://www.soundjay.com/human/sounds/applause-01.mp3",
-    "https://www.soundjay.com/misc/sounds/magic-chime-01.mp3"
-]
-WRONG_SOUND_FIXED = "https://www.soundjay.com/buttons/sounds/button-10.mp3"
-
-def play_sound(url):
-    st.markdown(f"""
-    <audio autoplay="true" style="display:none;">
-        <source src="{url}" type="audio/mp3">
-    </audio>
-    """, unsafe_allow_html=True)
+# 외부 오디오 URL 로딩이 느린 주범이므로 제거하거나
+# 로컬 파일 또는 Data URI로 변경 권장
 
 # ---------------------------
 # 5. 문제 생성
@@ -167,6 +157,7 @@ def generate_problem():
     st.session_state.is_checked = False
     st.session_state.solved = False
     st.session_state.selected = None
+    st.session_state.show_result = False
 
 # ---------------------------
 # 6. 세레모니
@@ -201,53 +192,66 @@ quiz_text = f"{st.session_state.num1} {st.session_state.operator} {st.session_st
 st.markdown(f"<div class='big-font'>{quiz_text}</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# 9. ✅ 보기 2×2 배열 (노란 박스 유지)
+# 9. ✅ 보기 2×2 배열 (Form 없이 직접 처리)
 # ---------------------------
-with st.form("quiz_form"):
+if not st.session_state.show_result:
     row1 = st.columns(2)
     row2 = st.columns(2)
 
     choices = st.session_state.choices
 
-    if row1[0].button(choices[0], use_container_width=True, disabled=st.session_state.solved):
+    # 각 버튼 클릭 시 즉시 처리
+    if row1[0].button(str(choices[0]), key="btn0", use_container_width=True):
         st.session_state.selected = choices[0]
-    if row1[1].button(choices[1], use_container_width=True, disabled=st.session_state.solved):
-        st.session_state.selected = choices[1]
-    if row2[0].button(choices[2], use_container_width=True, disabled=st.session_state.solved):
-        st.session_state.selected = choices[2]
-    if row2[1].button(choices[3], use_container_width=True, disabled=st.session_state.solved):
-        st.session_state.selected = choices[3]
-
-    submitted = st.form_submit_button(
-        "🚀 정답 확인하기",
-        use_container_width=True,
-        disabled=st.session_state.solved
-    )
-
-    if submitted and st.session_state.selected is not None:
-        st.session_state.is_checked = True
-
+        st.session_state.show_result = True
         if st.session_state.selected == st.session_state.answer:
             st.session_state.score += 10
             st.session_state.solved = True
             st.session_state.stickers.append(random.choice(["⭐", "🍎", "🍩", "🤖", "🦄", "⚽"]))
-            play_sound(random.choice(CORRECT_SOUNDS))
-            st.rerun()
-        else:
-            play_sound(WRONG_SOUND_FIXED)
+        st.rerun()
+        
+    if row1[1].button(str(choices[1]), key="btn1", use_container_width=True):
+        st.session_state.selected = choices[1]
+        st.session_state.show_result = True
+        if st.session_state.selected == st.session_state.answer:
+            st.session_state.score += 10
+            st.session_state.solved = True
+            st.session_state.stickers.append(random.choice(["⭐", "🍎", "🍩", "🤖", "🦄", "⚽"]))
+        st.rerun()
+        
+    if row2[0].button(str(choices[2]), key="btn2", use_container_width=True):
+        st.session_state.selected = choices[2]
+        st.session_state.show_result = True
+        if st.session_state.selected == st.session_state.answer:
+            st.session_state.score += 10
+            st.session_state.solved = True
+            st.session_state.stickers.append(random.choice(["⭐", "🍎", "🍩", "🤖", "🦄", "⚽"]))
+        st.rerun()
+        
+    if row2[1].button(str(choices[3]), key="btn3", use_container_width=True):
+        st.session_state.selected = choices[3]
+        st.session_state.show_result = True
+        if st.session_state.selected == st.session_state.answer:
+            st.session_state.score += 10
+            st.session_state.solved = True
+            st.session_state.stickers.append(random.choice(["⭐", "🍎", "🍩", "🤖", "🦄", "⚽"]))
+        st.rerun()
 
 # ---------------------------
 # 10. 결과 화면
 # ---------------------------
-if st.session_state.is_checked:
+if st.session_state.show_result:
     if st.session_state.solved:
         show_ceremony()
 
         if st.button("➡️ 다음 문제 도전!", use_container_width=True):
             st.session_state.step += 1
             st.session_state.problem_generated = False
-            st.session_state.is_checked = False
-            st.session_state.solved = False
+            st.session_state.show_result = False
             st.rerun()
     else:
         st.error("😅 아쉬워요. 다시 한번 생각해볼까요?")
+        if st.button("🔄 다시 풀어보기", use_container_width=True):
+            st.session_state.show_result = False
+            st.session_state.selected = None
+            st.rerun()
