@@ -4,7 +4,7 @@ import random
 # ---------------------------
 # 1. 페이지 설정
 # ---------------------------
-st.set_page_config(page_title="덧셈 뺄셈 두자리수", page_icon="🔢", layout="wide")
+st.set_page_config(page_title="덧뺄셈 두자리", page_icon="🔢", layout="wide")
 
 # ---------------------------
 # 2. CSS 스타일 (제목 두 줄 및 크기 조정)
