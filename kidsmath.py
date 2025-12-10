@@ -246,7 +246,7 @@ with st.sidebar:
 
 # 🟢 [수정] 두 줄 제목 삽입
 st.markdown("<h2 class='sub-title'>바보똥꾸돼지야 아빠가 만든</h2>", unsafe_allow_html=True)
-st.markdown("<h1 class='main-title'>덧셈 뺄셈 두자리수</h1>", unsafe_allow_html=True)
+st.markdown("<h1 class='main-title'>덧뺄셈 두자리수</h1>", unsafe_allow_html=True)
 
 
 if not st.session_state.problem_generated:
