@@ -4,14 +4,15 @@ import random
 # ---------------------------
 # 페이지 설정
 # ---------------------------
-st.set_page_config(page_title="초1 수학 퀴즈", page_icon="✏️", layout="centered")
+st.set_page_config(page_title="1학년 수학 퀴즈", page_icon="🎓", layout="centered")
 
 # ---------------------------
-# CSS (전체 센터 정렬 + 보기 정렬 + 점수 강조)
+# ✅ CSS (전체 센터 정렬 + 점수 확대 + 보기 완전 중앙 정렬)
 # ---------------------------
 st.markdown("""
 <style>
-/* 전체 페이지 가운데 정렬 */
+
+/* 전체 페이지 중앙 정렬 */
 .block-container {
     display: flex;
     flex-direction: column;
@@ -19,7 +20,7 @@ st.markdown("""
     text-align: center;
 }
 
-/* 제목 스타일 */
+/* 제목 중앙 */
 h1 {
     text-align: center !important;
 }
@@ -34,36 +35,50 @@ h1 {
     text-align: center;
 }
 
-/* 보기 전체 영역을 가운데 정렬 */
+/* ✅✅✅ 라디오 전체 줄을 "화면 기준" 중앙으로 */
 div[data-testid="stRadio"] {
+    width: 100% !important;
     display: flex !important;
     justify-content: center !important;
 }
 
-/* 보기 라벨 중앙 정렬 */
+/* ✅✅✅ 라디오 버튼 그룹 자체 중앙 */
+div[data-testid="stRadio"] > div {
+    justify-content: center !important;
+}
+
+/* ✅✅✅ 보기 버튼 가로 배열 */
 div.row-widget.stRadio > div {
     flex-direction: row !important;
     justify-content: center !important;
     gap: 30px !important;
 }
 
-/* 보기 텍스트 크기 */
+/* 보기 숫자 폰트 확대 */
 div[class*="stRadio"] > label > div[data-testid="stMarkdownContainer"] > p {
     font-size: 30px !important;
     text-align: center;
 }
 
-/* 라디오 버튼 동그라미 크기 */
+/* 라디오 동그라미 크기 확대 */
 div[class*="stRadio"] div[role="radiogroup"] > label > div:first-child {
     transform: scale(2.0);
 }
 
-/* 버튼 정렬 */
+/* 보기 버튼 스타일 */
+div[class*="stRadio"] label {
+    background: #f5f7ff;
+    padding: 10px 20px;
+    border-radius: 12px;
+}
+
+/* 버튼 중앙 정렬 */
 div.stButton {
     display: flex;
     justify-content: center;
     margin-top: 20px;
 }
+
 div.stButton > button:first-child {
     font-size: 24px;
     padding: 12px 40px;
@@ -72,11 +87,12 @@ div.stButton > button:first-child {
     color: white;
     border: none;
 }
+
 div.stButton > button:first-child:hover {
     background-color: #E64A19;
 }
 
-/* 정답 메시지 */
+/* 성공 메시지 */
 .success-msg {
     font-size: 28px;
     font-weight: bold;
@@ -85,15 +101,15 @@ div.stButton > button:first-child:hover {
     text-align: center;
 }
 
-/* 점수 표시 텍스트 */
+/* ✅ 점수 크게 표시 */
 .score-display {
     font-size: 40px;
     font-weight: bold;
     color: #D32F2F;
-    margin-top: 10px;
-    margin-bottom: 20px;
+    margin: 15px 0;
     text-align: center;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -104,32 +120,27 @@ if 'level' not in st.session_state:
     st.session_state.level = 1
 if 'score' not in st.session_state:
     st.session_state.score = 0
-if 'num1' not in st.session_state:
-    st.session_state.num1 = 0
-    st.session_state.num2 = 0
-    st.session_state.operator = '+'
-    st.session_state.answer = 0
-    st.session_state.choices = []
-    st.session_state.problem_generated = False
-    st.session_state.solved = False
 if 'step' not in st.session_state:
     st.session_state.step = 1
 if 'is_checked' not in st.session_state:
     st.session_state.is_checked = False
+if 'problem_generated' not in st.session_state:
+    st.session_state.problem_generated = False
 
 
 # ---------------------------
-# 난이도별 문제 생성 함수
+# 문제 생성 함수 (난이도별)
 # ---------------------------
 def generate_problem():
     level = st.session_state.level
+
     if level == 1:
         n1, n2 = random.randint(1, 9), random.randint(1, 9)
         ops = ['+', '-']
     elif level == 2:
         n1, n2 = random.randint(5, 20), random.randint(1, 15)
-        ops = ['+', '-', '+', '-']
-    else:  # level 3
+        ops = ['+', '-']
+    else:
         n1, n2 = random.randint(10, 30), random.randint(1, 20)
         ops = ['+', '-', '*']
 
@@ -156,13 +167,13 @@ def generate_problem():
     st.session_state.answer = ans
     st.session_state.choices = list(choices)
     random.shuffle(st.session_state.choices)
+
     st.session_state.problem_generated = True
-    st.session_state.solved = False
     st.session_state.is_checked = False
 
 
 # ---------------------------
-# 축하 함수
+# 정답 효과
 # ---------------------------
 def show_ceremony():
     animals = ["🐶", "🐱", "🐰", "🐼", "🐨", "🐯", "🦁", "🐧", "🦄"]
@@ -170,15 +181,19 @@ def show_ceremony():
 
     st.balloons()
     st.markdown(f"<div class='success-msg'>🎉 {random.choice(messages)}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='font-size:120px;line-height:1.2;text-align:center'>{random.choice(animals)}</div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div style='font-size:120px;line-height:1.2;text-align:center'>{random.choice(animals)}</div>",
+        unsafe_allow_html=True
+    )
 
 
 # ---------------------------
 # 메인 화면
 # ---------------------------
 st.title("🎓 1학년 수학 퀴즈")
-st.markdown(f"**현재 단계:** {st.session_state.level}", unsafe_allow_html=True)
-st.markdown(f"<div class='score-display'>현재 점수: {st.session_state.score}점</div>", unsafe_allow_html=True)
+
+st.markdown(f"**현재 단계 : {st.session_state.level}**")
+st.markdown(f"<div class='score-display'>현재 점수 : {st.session_state.score}점</div>", unsafe_allow_html=True)
 
 if not st.session_state.problem_generated:
     generate_problem()
@@ -186,7 +201,9 @@ if not st.session_state.problem_generated:
 quiz_text = f"{st.session_state.num1} {st.session_state.operator} {st.session_state.num2} = ?"
 st.markdown(f'<div class="big-font">❓ 문제<br>{quiz_text}</div>', unsafe_allow_html=True)
 
+# ---------------------------
 # 문제 보기
+# ---------------------------
 with st.form("quiz_form"):
     user_choice = st.radio(
         "정답을 골라보세요:",
@@ -199,27 +216,31 @@ with st.form("quiz_form"):
 
     if submitted:
         st.session_state.is_checked = True
+
         if user_choice == st.session_state.answer:
-            st.session_state.solved = True
             st.session_state.score += 10
+            st.session_state.correct = True
         else:
-            st.session_state.solved = False
+            st.session_state.correct = False
 
 
 # ---------------------------
 # 결과 표시
 # ---------------------------
 if st.session_state.is_checked:
-    if st.session_state.solved:
+    if st.session_state.correct:
         show_ceremony()
-        st.markdown(f"<div class='score-display'>현재 점수: {st.session_state.score}점</div>", unsafe_allow_html=True)
 
-        # 다음 문제 버튼
-        if st.button("➡️ 다음 문제 풀기"):
+        st.markdown(f"<div class='score-display'>현재 점수 : {st.session_state.score}점</div>", unsafe_allow_html=True)
+
+        if st.button("➡️ 다음 문제"):
             st.session_state.step += 1
+
+            # ✅ 5문제마다 레벨 업
             if st.session_state.step % 5 == 0:
                 st.session_state.level = min(3, st.session_state.level + 1)
-                st.success(f"🎯 축하합니다! {st.session_state.level}단계로 올라왔어요!")
+                st.success(f"🎯 {st.session_state.level}단계로 올라갔어요!")
+
             st.session_state.problem_generated = False
             st.rerun()
     else:
