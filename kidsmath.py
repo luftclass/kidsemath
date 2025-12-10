@@ -1,29 +1,104 @@
 import streamlit as st
 import random
 
-# 1. 페이지 설정 (가장 먼저!)
+# ---------------------------
+# 페이지 설정
+# ---------------------------
 st.set_page_config(page_title="초1 수학 퀴즈", page_icon="✏️", layout="centered")
 
-# 2. CSS 스타일 (그 다음)
+# ---------------------------
+# CSS (전체 센터 정렬 + 보기 정렬 + 점수 강조)
+# ---------------------------
 st.markdown("""
 <style>
-/* ... (기존 CSS 내용은 그대로 두세요. 길어서 생략합니다) ... */
-.block-container { display: flex; flex-direction: column; align-items: center; text-align: center; }
-h1 { text-align: center !important; }
-.big-font { font-size: 60px !important; font-weight: bold; color: #1E88E5; margin: 30px 0; line-height: 1.4; text-align: center; }
-div[data-testid="stRadio"] { display: flex !important; justify-content: center !important; }
-div.row-widget.stRadio > div { flex-direction: row !important; justify-content: center !important; gap: 30px !important; }
-div[class*="stRadio"] > label > div[data-testid="stMarkdownContainer"] > p { font-size: 30px !important; text-align: center; }
-div[class*="stRadio"] div[role="radiogroup"] > label > div:first-child { transform: scale(2.0); }
-div.stButton { display: flex; justify-content: center; margin-top: 20px; }
-div.stButton > button:first-child { font-size: 24px; padding: 12px 40px; border-radius: 15px; background-color: #FF5722; color: white; border: none; }
-div.stButton > button:first-child:hover { background-color: #E64A19; }
-.success-msg { font-size: 28px; font-weight: bold; color: #2E7D32; margin: 20px 0; text-align: center; }
+/* 전체 페이지 가운데 정렬 */
+.block-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* 제목 스타일 */
+h1 {
+    text-align: center !important;
+}
+
+/* 문제 텍스트 */
+.big-font {
+    font-size: 60px !important;
+    font-weight: bold;
+    color: #1E88E5;
+    margin: 30px 0;
+    line-height: 1.4;
+    text-align: center;
+}
+
+/* 보기 전체 영역을 가운데 정렬 */
+div[data-testid="stRadio"] {
+    display: flex !important;
+    justify-content: center !important;
+}
+
+/* 보기 라벨 중앙 정렬 */
+div.row-widget.stRadio > div {
+    flex-direction: row !important;
+    justify-content: center !important;
+    gap: 30px !important;
+}
+
+/* 보기 텍스트 크기 */
+div[class*="stRadio"] > label > div[data-testid="stMarkdownContainer"] > p {
+    font-size: 30px !important;
+    text-align: center;
+}
+
+/* 라디오 버튼 동그라미 크기 */
+div[class*="stRadio"] div[role="radiogroup"] > label > div:first-child {
+    transform: scale(2.0);
+}
+
+/* 버튼 정렬 */
+div.stButton {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+div.stButton > button:first-child {
+    font-size: 24px;
+    padding: 12px 40px;
+    border-radius: 15px;
+    background-color: #FF5722;
+    color: white;
+    border: none;
+}
+div.stButton > button:first-child:hover {
+    background-color: #E64A19;
+}
+
+/* 정답 메시지 */
+.success-msg {
+    font-size: 28px;
+    font-weight: bold;
+    color: #2E7D32;
+    margin: 20px 0;
+    text-align: center;
+}
+
+/* 점수 표시 텍스트 */
+.score-display {
+    font-size: 40px;
+    font-weight: bold;
+    color: #D32F2F;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------
-# [중요] 3. 세션 상태 초기화 (화면 출력보다 무조건 위에 있어야 함!)
+# 세션 상태 초기화
 # ---------------------------
 if 'level' not in st.session_state:
     st.session_state.level = 1
@@ -42,8 +117,9 @@ if 'step' not in st.session_state:
 if 'is_checked' not in st.session_state:
     st.session_state.is_checked = False
 
+
 # ---------------------------
-# 4. 함수 정의
+# 난이도별 문제 생성 함수
 # ---------------------------
 def generate_problem():
     level = st.session_state.level
@@ -84,6 +160,10 @@ def generate_problem():
     st.session_state.solved = False
     st.session_state.is_checked = False
 
+
+# ---------------------------
+# 축하 함수
+# ---------------------------
 def show_ceremony():
     animals = ["🐶", "🐱", "🐰", "🐼", "🐨", "🐯", "🦁", "🐧", "🦄"]
     messages = ["대단해요!", "참 잘했어요!", "멋져요!", "천재예요!", "정답입니다!", "최고예요!"]
@@ -94,12 +174,11 @@ def show_ceremony():
 
 
 # ---------------------------
-# 5. 메인 화면 출력 (여기가 아래로 와야 합니다!)
+# 메인 화면
 # ---------------------------
 st.title("🎓 1학년 수학 퀴즈")
-
-# 초기화가 위에서 끝났으므로 이제 에러가 나지 않습니다.
-st.markdown(f"**현재 단계:** {st.session_state.level} / **점수:** {st.session_state.score}점")
+st.markdown(f"**현재 단계:** {st.session_state.level}", unsafe_allow_html=True)
+st.markdown(f"<div class='score-display'>현재 점수: {st.session_state.score}점</div>", unsafe_allow_html=True)
 
 if not st.session_state.problem_generated:
     generate_problem()
@@ -107,7 +186,7 @@ if not st.session_state.problem_generated:
 quiz_text = f"{st.session_state.num1} {st.session_state.operator} {st.session_state.num2} = ?"
 st.markdown(f'<div class="big-font">❓ 문제<br>{quiz_text}</div>', unsafe_allow_html=True)
 
-# 문제 보기 Form
+# 문제 보기
 with st.form("quiz_form"):
     user_choice = st.radio(
         "정답을 골라보세요:",
@@ -120,30 +199,28 @@ with st.form("quiz_form"):
 
     if submitted:
         st.session_state.is_checked = True
-        
         if user_choice == st.session_state.answer:
-            # [수정 포인트] 이미 푼 문제가 아닐 때만 점수 추가
-            if not st.session_state.solved:
-                st.session_state.score += 10
-                st.session_state.solved = True
+            st.session_state.solved = True
+            st.session_state.score += 10
         else:
             st.session_state.solved = False
 
+
+# ---------------------------
 # 결과 표시
+# ---------------------------
 if st.session_state.is_checked:
     if st.session_state.solved:
         show_ceremony()
-        st.markdown(f"<div style='text-align:center; font-weight:bold;'>현재 점수: {st.session_state.score}점</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='score-display'>현재 점수: {st.session_state.score}점</div>", unsafe_allow_html=True)
 
+        # 다음 문제 버튼
         if st.button("➡️ 다음 문제 풀기"):
             st.session_state.step += 1
             if st.session_state.step % 5 == 0:
                 st.session_state.level = min(3, st.session_state.level + 1)
-                st.balloons()
-            
+                st.success(f"🎯 축하합니다! {st.session_state.level}단계로 올라왔어요!")
             st.session_state.problem_generated = False
-            st.session_state.is_checked = False
-            st.session_state.solved = False
             st.rerun()
     else:
         st.error("😅 아쉬워요. 다시 한번 생각해볼까요?")
