@@ -7,15 +7,15 @@ import random
 st.set_page_config(page_title="1학년 수학 퀴즈왕", page_icon="👑", layout="wide")
 
 # ---------------------------
-# 2. CSS 스타일 (강력한 중앙 정렬 적용)
+# 2. CSS 스타일 (강력한 내부 요소 중앙 정렬)
 # ---------------------------
 st.markdown("""
 <style>
     /* 1. 전체 페이지 폰트 및 기본 정렬 */
     .block-container {
         font-family: 'Gamja Flower', sans-serif;
-        text-align: center; /* 텍스트 중앙 정렬 */
-        align-items: center; /* 아이템 중앙 정렬 */
+        text-align: center;
+        align-items: center;
         display: flex;
         flex-direction: column;
     }
@@ -33,33 +33,35 @@ st.markdown("""
         font-weight: bold;
         color: #1565C0;
         text-align: center;
-        margin: 20px auto; /* 좌우 여백 자동(중앙) */
+        margin: 20px auto; 
         background-color: #E3F2FD;
         border-radius: 20px;
         padding: 40px;
         box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
-        width: 80%; /* 박스 너비 조절 */
+        width: 80%; 
     }
 
-    /* 4. [핵심] 라디오 버튼(보기) 완벽 중앙 정렬 */
-    /* 라디오 버튼을 감싸는 컨테이너를 강제로 flex로 만들고 중앙 배치 */
-    div[role="radiogroup"] {
-        display: flex !important;
-        flex-direction: row !important; /* 가로 배열 */
-        justify-content: center !important; /* 가로축 중앙 정렬 */
-        align-items: center !important; /* 세로축 중앙 정렬 */
-        gap: 30px !important; /* 보기 사이 간격 */
-        width: 100% !important;
-    }
-
-    /* 라디오 버튼 전체 영역 */
+    /* ✅✅✅ [핵심 수정] 라디오 버튼 내부 그룹(Table 역할) 중앙 정렬 ✅✅✅ */
+    
+    /* 라디오 버튼 전체를 감싸는 가장 바깥 틀 */
     div[data-testid="stRadio"] {
         display: flex !important;
         justify-content: center !important;
+        align-items: center !important;
         width: 100% !important;
+        margin: 0 auto !important;
     }
 
-    /* 보기 텍스트 크기 */
+    /* 라디오 버튼 알맹이들이 들어있는 내부 컨테이너 (여기가 중요!) */
+    div[role="radiogroup"] {
+        display: flex !important;
+        justify-content: center !important; /* 가로 중앙 정렬 */
+        align-items: center !important;     /* 세로 중앙 정렬 */
+        width: 100% !important;             /* 전체 너비 사용 */
+        gap: 40px !important;               /* 보기 사이 간격 넓히기 */
+    }
+
+    /* 보기 텍스트(라벨) 스타일 */
     div[class*="stRadio"] label div[data-testid="stMarkdownContainer"] p {
         font-size: 35px !important;
         font-weight: bold;
@@ -67,7 +69,7 @@ st.markdown("""
         margin: 0 auto;
     }
 
-    /* 5. 정답 확인 버튼 중앙 정렬 및 스타일 */
+    /* 4. 폼(Form) 버튼 중앙 정렬 */
     div.stButton {
         display: flex;
         justify-content: center;
@@ -75,15 +77,15 @@ st.markdown("""
     }
     
     div.stButton > button {
-        width: 50% !important; /* 버튼 길이를 절반 정도로 */
+        width: 50% !important; 
         font-size: 25px !important;
         padding: 10px 0 !important;
         border-radius: 15px !important;
-        margin: 20px auto !important; /* 중앙 정렬 */
+        margin: 20px auto !important;
         display: block !important;
     }
 
-    /* 6. 정답 메시지 */
+    /* 5. 정답 메시지 */
     .success-msg {
         font-size: 40px;
         font-weight: bold;
@@ -93,7 +95,7 @@ st.markdown("""
         animation: bounce 1s infinite;
     }
 
-    /* 7. 스티커 박스 */
+    /* 6. 스티커 박스 */
     .sticker-box {
         font-size: 30px;
         text-align: center;
@@ -104,11 +106,13 @@ st.markdown("""
         min-height: 100px;
     }
     
-    /* 8. 폼(Form) 내부 요소 중앙 정렬 */
+    /* 7. 폼(Form) 자체를 중앙 정렬 */
     div[data-testid="stForm"] {
-        text-align: center;
-        width: 80%; /* 폼 너비 조절 */
-        margin: 0 auto; /* 폼 자체를 가운데로 */
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* 폼 내부 요소들을 가운데로 모음 */
+        width: 80%; 
+        margin: 0 auto; 
     }
 
 </style>
@@ -126,7 +130,7 @@ if 'stickers' not in st.session_state: st.session_state.stickers = []
 if 'solved' not in st.session_state: st.session_state.solved = False
 
 # ---------------------------
-# 4. 효과음 및 함수 설정
+# 4. 효과음 및 함수
 # ---------------------------
 CORRECT_SOUNDS = [
     "https://www.soundjay.com/buttons/sounds/button-4.mp3",
@@ -186,7 +190,6 @@ def show_ceremony():
     st.balloons()
     st.markdown(f"<div class='success-msg'>🎉 {random.choice(messages)}</div>", unsafe_allow_html=True)
     
-    # 이미지도 중앙 정렬을 위해 컬럼 사용
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
         st.image(random.choice(gifs), width=300)
@@ -219,24 +222,24 @@ quiz_text = f"{st.session_state.num1} {op_display} {st.session_state.num2} = ❓
 st.markdown(f'<div class="big-font">{quiz_text}</div>', unsafe_allow_html=True)
 
 # ---------------------------
-# ✅ 폼 영역 (중앙 정렬 적용됨)
+# ✅ 폼 영역
 # ---------------------------
 with st.form("quiz_form"):
-    # 라디오 버튼
+    
+    # 여기서 라디오 버튼들이 중앙으로 올 것입니다.
     user_choice = st.radio(
         "정답을 골라보세요:",
         options=st.session_state.choices,
-        horizontal=True, # 가로 배열
-        label_visibility="collapsed", # 라벨 숨김
+        horizontal=True, 
+        label_visibility="collapsed",
         disabled=st.session_state.solved
     )
 
-    st.write("") # 여백
+    st.write("") 
 
-    # 정답 버튼
     submitted = st.form_submit_button(
         "🚀 정답 확인하기", 
-        use_container_width=False, # CSS로 너비 제어하기 위해 False
+        use_container_width=False, 
         disabled=st.session_state.solved
     )
 
@@ -259,7 +262,7 @@ if st.session_state.is_checked:
     if st.session_state.solved:
         show_ceremony()
         
-        # 다음 문제 버튼도 중앙 정렬
+        # 버튼 중앙 정렬을 위해 컬럼 활용
         col1, col2, col3 = st.columns([1, 1, 1])
         with col2:
             if st.button("➡️ 다음 문제 도전! (클릭)", type="primary", use_container_width=True):
