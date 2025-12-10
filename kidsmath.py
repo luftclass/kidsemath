@@ -4,7 +4,7 @@ import random
 # ---------------------------
 # 1. 페이지 설정
 # ---------------------------
-st.set_page_config(page_title="1학년 수학 퀴즈왕", page_icon="👑", layout="wide")
+st.set_page_config(page_title="덧셈 뺄셈 두자리수", page_icon="🔢", layout="wide")
 
 # ---------------------------
 # 2. CSS 스타일
@@ -26,7 +26,7 @@ h1 {
 
 /* 문제 박스 스타일 */
 .big-font {
-    font-size: 60px !important; 
+    font-size: 70px !important; 
     font-weight: bold;
     color: #1565C0;
     text-align: center;
@@ -37,7 +37,7 @@ h1 {
     box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
 }
 
-/* ✅✅✅ 보기 버튼(카드) 스타일 - 클릭 영역 확대 ✅✅✅ */
+/* ✅✅✅ 보기 버튼(카드) 스타일 ✅✅✅ */
 div[role="radiogroup"] {
     display: flex !important;
     justify-content: center !important;
@@ -55,7 +55,10 @@ div[class*="stRadio"] label {
     cursor: pointer !important;
     transition: all 0.3s ease !important;
     margin-right: 0 !important; 
-    box-shadow: 0 4px 0 #FDD835 !important; 
+    box-shadow: 0 4px 0 #FDD835 !important;
+    
+    /* ⭐ 글자색 블랙 고정 ⭐ */
+    color: black !important;
 }
 
 div[class*="stRadio"] label:hover {
@@ -66,14 +69,15 @@ div[class*="stRadio"] label:hover {
 div[class*="stRadio"] label[data-checked="true"] {
     background-color: #FFEB3B !important;
     border-color: #FBC02D !important;
-    color: black !important;
+    color: black !important; 
 }
 
-/* 텍스트 크기 */
+/* 텍스트 크기 및 색상 */
 div[class*="stRadio"] label div[data-testid="stMarkdownContainer"] p {
     font-size: 28px !important; 
     font-weight: bold;
     margin: 0 !important;
+    color: black !important; 
 }
 
 /* 폼 제출 버튼 스타일 */
@@ -128,46 +132,73 @@ if 'stickers' not in st.session_state: st.session_state.stickers = []
 if 'solved' not in st.session_state: st.session_state.solved = False
 
 # ---------------------------
-# 4. 효과음 설정 (교체됨)
+# 4. 사운드 재생 함수 (Invisible)
 # ---------------------------
 CORRECT_SOUNDS = [
-    "https://www.soundjay.com/buttons/sounds/button-3.mp3", # 띵동
-    "https://www.soundjay.com/human/sounds/applause-01.mp3", # 박수
-    "https://www.soundjay.com/misc/sounds/magic-chime-01.mp3" # 띠로링
+    "https://www.soundjay.com/buttons/sounds/button-3.mp3", 
+    "https://www.soundjay.com/human/sounds/applause-01.mp3", 
+    "https://www.soundjay.com/misc/sounds/magic-chime-01.mp3" 
 ]
 
-# 🔊 작동 안 되는 사운드 제거 및 새 사운드 추가
-WRONG_SOUNDS = [
-    "https://www.soundjay.com/buttons/sounds/beep-02.mp3", # 삐!
-    "https://www.soundjay.com/buttons/sounds/button-10.mp3", # 띡
-    "https://www.soundjay.com/transportation/sounds/car-horn-01.mp3" # 빵! (재밌는 소리)
-]
+WRONG_SOUND_FIXED = "https://www.soundjay.com/buttons/sounds/button-10.mp3"
 
+def play_sound(url):
+    sound_html = f"""
+    <audio autoplay="true" style="display:none;">
+        <source src="{url}" type="audio/mp3">
+    </audio>
+    """
+    st.markdown(sound_html, unsafe_allow_html=True)
+
+# ---------------------------
+# 5. 문제 생성 로직 (수학적 위계 적용)
+# ---------------------------
 def generate_problem():
     level = st.session_state.level
-    if level == 1:
-        n1, n2 = random.randint(1, 9), random.randint(1, 9)
-        ops = ['+', '-']
-    elif level == 2:
-        n1, n2 = random.randint(5, 20), random.randint(1, 15)
-        ops = ['+', '-']
-    else:
-        n1, n2 = random.randint(10, 30), random.randint(1, 20)
-        ops = ['+', '-', '*']
-
+    ops = ['+', '-'] # 곱셈 제거
     op = random.choice(ops)
-    if op == '-':
-        if n1 < n2: n1, n2 = n2, n1
-        ans = n1 - n2
-    elif op == '+':
+
+    # 🟢 1단계: 1~10 범위 (기초)
+    if level == 1:
+        if op == '+':
+            n1 = random.randint(1, 5)
+            n2 = random.randint(1, 5)
+        else: # 뺄셈
+            n1 = random.randint(2, 9)
+            n2 = random.randint(1, n1) # 음수 방지
+
+    # 🟡 2단계: 1~20 범위 (받아올림 기초)
+    elif level == 2:
+        if op == '+':
+            n1 = random.randint(5, 15)
+            n2 = random.randint(2, 9)
+            # 합이 20을 넘지 않도록 조정
+            if n1 + n2 > 20: n1 = 20 - n2 
+        else:
+            n1 = random.randint(10, 20)
+            n2 = random.randint(2, 9)
+
+    # 🔴 3단계: 1~30 범위 (두 자리 수 연산)
+    else:
+        if op == '+':
+            n1 = random.randint(10, 25)
+            n2 = random.randint(1, 30 - n1) # 합이 30 이하
+        else:
+            n1 = random.randint(15, 30)
+            n2 = random.randint(5, 15)
+
+    # 연산 결과 계산
+    if op == '+':
         ans = n1 + n2
     else:
-        ans = n1 * n2
+        ans = n1 - n2
 
+    # 보기 생성 (4개)
     choices = set([ans])
     while len(choices) < 4:
+        # 오답을 정답 근처 숫자로 생성하여 난이도 조절
         wrong = ans + random.choice([-5, -3, -2, -1, 1, 2, 3, 5])
-        if wrong >= 0 and wrong != ans:
+        if 0 <= wrong <= 50 and wrong != ans: # 음수 및 너무 큰 수 방지
             choices.add(wrong)
 
     st.session_state.num1 = n1
@@ -181,18 +212,17 @@ def generate_problem():
     st.session_state.solved = False
 
 def show_ceremony():
-    # 🎉 GIF 이미지 대폭 추가!
     gifs = [
-        "https://media.giphy.com/media/nNxT5qXR02FOM/giphy.gif", # 스폰지밥
-        "https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif", # 미니언즈 박수
-        "https://media.giphy.com/media/l0HlFTxCJqK7s21pK/giphy.gif", # 인사이드 아웃 기쁨이
-        "https://media.giphy.com/media/TdfyKrN7HGTIY/giphy.gif", # 배트맨 따봉
-        "https://media.giphy.com/media/kxUhZ0Ubz8HQ4/giphy.gif", # 춤추는 펭귄
-        "https://media.giphy.com/media/26tOZ42Mg6pbTUPHW/giphy.gif", # 폭죽 팡팡
-        "https://media.giphy.com/media/Mc5WxJmFf8NBS/giphy.gif", # 춤추는 고양이
-        "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif", # 주토피아 나무늘보
-        "https://media.giphy.com/media/l46C93LNM33JJ1SMw/giphy.gif", # 아기곰 댄스
-        "https://media.giphy.com/media/chzz1FQgqhytWRWbp3/giphy.gif" # 피카츄 댄스
+        "https://media.giphy.com/media/nNxT5qXR02FOM/giphy.gif",
+        "https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif",
+        "https://media.giphy.com/media/l0HlFTxCJqK7s21pK/giphy.gif",
+        "https://media.giphy.com/media/TdfyKrN7HGTIY/giphy.gif",
+        "https://media.giphy.com/media/kxUhZ0Ubz8HQ4/giphy.gif",
+        "https://media.giphy.com/media/26tOZ42Mg6pbTUPHW/giphy.gif",
+        "https://media.giphy.com/media/Mc5WxJmFf8NBS/giphy.gif",
+        "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif",
+        "https://media.giphy.com/media/l46C93LNM33JJ1SMw/giphy.gif",
+        "https://media.giphy.com/media/chzz1FQgqhytWRWbp3/giphy.gif"
     ]
     messages = ["천재가 나타났다!", "우와! 대단해요!", "정답입니다! 최고!", "수학왕이 될 자격이 있어요!", "오늘도 멋져요!"]
     
@@ -204,10 +234,9 @@ def show_ceremony():
         st.image(random.choice(gifs), width=300)
 
 # ---------------------------
-# 5. 메인 화면 구성
+# 6. 화면 구성
 # ---------------------------
 
-# 사이드바
 with st.sidebar:
     st.header(f"📒 점수: {st.session_state.score}점")
     st.write(f"현재 레벨: **{st.session_state.level} 단계**")
@@ -220,25 +249,22 @@ with st.sidebar:
     stickers_html = "<div class='sticker-box'>" + " ".join(st.session_state.stickers) + "</div>"
     st.markdown(stickers_html, unsafe_allow_html=True)
 
-# 메인 타이틀
-st.title("🎓 1학년 수학 퀴즈왕")
+# 제목 변경됨
+st.title("➕ 덧셈 뺄셈 두자리수 ➖")
 
 if not st.session_state.problem_generated:
     generate_problem()
 
-# 문제 출력
 col_L, col_Main, col_R = st.columns([1, 2, 1])
 with col_Main:
-    op_display = "×" if st.session_state.operator == '*' else st.session_state.operator
-    quiz_text = f"{st.session_state.num1} {op_display} {st.session_state.num2} = ❓"
+    # 연산 기호 표시
+    quiz_text = f"{st.session_state.num1} {st.session_state.operator} {st.session_state.num2} = ❓"
     st.markdown(f'<div class="big-font">{quiz_text}</div>', unsafe_allow_html=True)
 
-# ------------------------------------------------------------
-# 폼 내부 중앙 정렬 (컬럼 사용)
-# ------------------------------------------------------------
+# ---------------------------
+# 폼 영역
+# ---------------------------
 with st.form("quiz_form"):
-    
-    # 양쪽 여백을 줘서 가운데로 몰아넣기
     c1, c2, c3 = st.columns([1, 4, 1]) 
     
     with c2:
@@ -266,13 +292,12 @@ with st.form("quiz_form"):
                 st.session_state.score += 10
                 st.session_state.solved = True
                 st.session_state.stickers.append(random.choice(["⭐", "🍎", "🍩", "🤖", "🦄", "⚽", "🍭", "🦖"]))
-                # ✅ 정답 소리 재생
-                st.audio(random.choice(CORRECT_SOUNDS), autoplay=True)
+                
+                play_sound(random.choice(CORRECT_SOUNDS))
                 st.rerun()
         else:
             st.session_state.solved = False
-            # ✅ 오답 소리 재생 (교체됨)
-            st.audio(random.choice(WRONG_SOUNDS), autoplay=True)
+            play_sound(WRONG_SOUND_FIXED)
 
 # ---------------------------
 # 결과 화면
@@ -285,6 +310,7 @@ if st.session_state.is_checked:
         with col2:
             if st.button("➡️ 다음 문제 도전! (클릭)", type="primary", use_container_width=True):
                 st.session_state.step += 1
+                # 5문제마다 레벨업
                 if st.session_state.step % 5 == 0:
                     st.session_state.level = min(3, st.session_state.level + 1)
                     st.snow()
