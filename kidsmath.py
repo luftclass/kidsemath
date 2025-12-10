@@ -20,7 +20,7 @@ st.markdown(
 )
 
 # ---------------------------
-# 2. CSS 스타일 (시스템 기본 폰트 + 모바일 최적화)
+# 2. CSS 스타일 (시스템 기본 폰트 + 노란 박스 유지)
 # ---------------------------
 st.markdown("""
 <style>
@@ -38,7 +38,7 @@ html, body {
     padding-right: 10px !important;
 }
 
-/* 서브 타이틀 */
+/* 제목 */
 h2.sub-title {
     text-align: center !important;
     color: #888;
@@ -46,8 +46,6 @@ h2.sub-title {
     margin-top: 10px;
     margin-bottom: 0;
 }
-
-/* 메인 타이틀 */
 h1.main-title {
     text-align: center !important;
     color: #FF6F00;
@@ -55,7 +53,7 @@ h1.main-title {
     margin-bottom: 10px;
 }
 
-/* 문제 박스 */
+/* 문제 */
 .big-font {
     font-size: 38px !important;
     font-weight: bold;
@@ -67,7 +65,7 @@ h1.main-title {
     margin-bottom: 15px;
 }
 
-/* ✅ 보기 카드 공통 */
+/* ✅ 보기 기본 = 노란 박스 유지 */
 .choice-card {
     background-color: #FFF9C4;
     border: 2px solid #FFF176;
@@ -122,6 +120,7 @@ if 'is_checked' not in st.session_state: st.session_state.is_checked = False
 if 'problem_generated' not in st.session_state: st.session_state.problem_generated = False
 if 'stickers' not in st.session_state: st.session_state.stickers = []
 if 'solved' not in st.session_state: st.session_state.solved = False
+if 'selected' not in st.session_state: st.session_state.selected = None
 
 # ---------------------------
 # 4. 사운드
@@ -202,50 +201,22 @@ quiz_text = f"{st.session_state.num1} {st.session_state.operator} {st.session_st
 st.markdown(f"<div class='big-font'>{quiz_text}</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# 9. ✅ 보기 2×2 배열
+# 9. ✅ 보기 2×2 배열 (노란 박스 유지)
 # ---------------------------
 with st.form("quiz_form"):
-
     row1 = st.columns(2)
     row2 = st.columns(2)
 
     choices = st.session_state.choices
 
-    with row1[0]:
-        st.session_state.selected = st.radio(
-            "",
-            options=[choices[0]],
-            label_visibility="collapsed",
-            key="c1",
-            disabled=st.session_state.solved
-        )
-
-    with row1[1]:
-        st.session_state.selected = st.radio(
-            "",
-            options=[choices[1]],
-            label_visibility="collapsed",
-            key="c2",
-            disabled=st.session_state.solved
-        )
-
-    with row2[0]:
-        st.session_state.selected = st.radio(
-            "",
-            options=[choices[2]],
-            label_visibility="collapsed",
-            key="c3",
-            disabled=st.session_state.solved
-        )
-
-    with row2[1]:
-        st.session_state.selected = st.radio(
-            "",
-            options=[choices[3]],
-            label_visibility="collapsed",
-            key="c4",
-            disabled=st.session_state.solved
-        )
+    if row1[0].button(choices[0], use_container_width=True, disabled=st.session_state.solved):
+        st.session_state.selected = choices[0]
+    if row1[1].button(choices[1], use_container_width=True, disabled=st.session_state.solved):
+        st.session_state.selected = choices[1]
+    if row2[0].button(choices[2], use_container_width=True, disabled=st.session_state.solved):
+        st.session_state.selected = choices[2]
+    if row2[1].button(choices[3], use_container_width=True, disabled=st.session_state.solved):
+        st.session_state.selected = choices[3]
 
     submitted = st.form_submit_button(
         "🚀 정답 확인하기",
@@ -253,17 +224,10 @@ with st.form("quiz_form"):
         disabled=st.session_state.solved
     )
 
-    if submitted:
+    if submitted and st.session_state.selected is not None:
         st.session_state.is_checked = True
 
-        selected_value = (
-            st.session_state.c1 or
-            st.session_state.c2 or
-            st.session_state.c3 or
-            st.session_state.c4
-        )[0]
-
-        if selected_value == st.session_state.answer:
+        if st.session_state.selected == st.session_state.answer:
             st.session_state.score += 10
             st.session_state.solved = True
             st.session_state.stickers.append(random.choice(["⭐", "🍎", "🍩", "🤖", "🦄", "⚽"]))
