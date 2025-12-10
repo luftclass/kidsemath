@@ -235,6 +235,7 @@ quiz_text = f"{st.session_state.num1} {st.session_state.operator} {st.session_st
 st.markdown(f"<div class='big-font'>{quiz_text}</div>", unsafe_allow_html=True)
 
 # ---------------------------
+# ---------------------------
 # 9. ✅ 보기 2×2 고정 배열 (모바일에서도 유지)
 # ---------------------------
 if not st.session_state.show_result:
@@ -290,7 +291,6 @@ if not st.session_state.show_result:
             handle_click(int(query_params["choice"]))
         except:
             pass
-
 
 # ---------------------------
 # 10. 결과 화면
