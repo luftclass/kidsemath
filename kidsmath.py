@@ -2,38 +2,63 @@ import streamlit as st
 import random
 
 # ---------------------------
-# 페이지 기본 설정
+# 페이지 설정
 # ---------------------------
 st.set_page_config(page_title="초1 수학 퀴즈", page_icon="✏️", layout="centered")
 
 # ---------------------------
-# CSS (가운데 정렬 + 보기 스타일)
+# CSS (전체 센터 정렬 + 보기 정렬)
 # ---------------------------
 st.markdown("""
 <style>
+/* 전체 페이지 가운데 정렬 */
 .block-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    max-width: 800px;
-    padding-top: 2rem;
 }
+
+/* 제목 스타일 */
+h1 {
+    text-align: center !important;
+}
+
+/* 문제 텍스트 */
 .big-font {
     font-size: 60px !important;
     font-weight: bold;
     color: #1E88E5;
-    margin-bottom: 30px;
-    line-height: 1.5;
+    margin: 30px 0;
+    line-height: 1.4;
+    text-align: center;
 }
+
+/* 보기 전체 영역을 가운데 정렬 */
+div[data-testid="stRadio"] {
+    display: flex !important;
+    justify-content: center !important;
+}
+
+/* 보기 라벨 중앙 정렬 */
 div.row-widget.stRadio > div {
-    flex-direction: row;
-    justify-content: center;
-    gap: 30px;
+    flex-direction: row !important;
+    justify-content: center !important;
+    gap: 30px !important;
 }
+
+/* 보기 텍스트 크기 */
 div[class*="stRadio"] > label > div[data-testid="stMarkdownContainer"] > p {
     font-size: 30px !important;
+    text-align: center;
 }
+
+/* 라디오 버튼 동그라미 크기 */
 div[class*="stRadio"] div[role="radiogroup"] > label > div:first-child {
     transform: scale(2.0);
 }
+
+/* 버튼 정렬 */
 div.stButton {
     display: flex;
     justify-content: center;
@@ -49,13 +74,15 @@ div.stButton > button:first-child {
 }
 div.stButton > button:first-child:hover {
     background-color: #E64A19;
-    border: none;
 }
+
+/* 정답 메시지 */
 .success-msg {
     font-size: 28px;
     font-weight: bold;
     color: #2E7D32;
     margin: 20px 0;
+    text-align: center;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -107,9 +134,7 @@ def generate_problem():
     else:
         ans = n1 * n2
 
-    # 보기 생성
-    choices = set()
-    choices.add(ans)
+    choices = set([ans])
     while len(choices) < 3:
         wrong = ans + random.choice([-5, -3, -2, 2, 3, 5])
         if wrong >= 0 and wrong != ans:
@@ -127,7 +152,7 @@ def generate_problem():
 
 
 # ---------------------------
-# 세레모니 함수
+# 축하 함수
 # ---------------------------
 def show_ceremony():
     animals = ["🐶", "🐱", "🐰", "🐼", "🐨", "🐯", "🦁", "🐧", "🦄"]
@@ -135,11 +160,11 @@ def show_ceremony():
 
     st.balloons()
     st.markdown(f"<div class='success-msg'>🎉 {random.choice(messages)}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='font-size:120px;line-height:1.2'>{random.choice(animals)}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='font-size:120px;line-height:1.2;text-align:center'>{random.choice(animals)}</div>", unsafe_allow_html=True)
 
 
 # ---------------------------
-# 메인 UI
+# 메인 화면
 # ---------------------------
 st.title("🎓 1학년 수학 퀴즈")
 st.markdown(f"**현재 단계:** {st.session_state.level} / **점수:** {st.session_state.score}점")
@@ -150,7 +175,7 @@ if not st.session_state.problem_generated:
 quiz_text = f"{st.session_state.num1} {st.session_state.operator} {st.session_state.num2} = ?"
 st.markdown(f'<div class="big-font">❓ 문제<br>{quiz_text}</div>', unsafe_allow_html=True)
 
-# 문제 및 보기를 폼으로 처리
+# 문제 보기
 with st.form("quiz_form"):
     user_choice = st.radio(
         "정답을 골라보세요:",
@@ -171,22 +196,20 @@ with st.form("quiz_form"):
 
 
 # ---------------------------
-# 결과 출력
+# 결과 표시
 # ---------------------------
 if st.session_state.is_checked:
     if st.session_state.solved:
         show_ceremony()
-        st.markdown(f"**현재 점수: {st.session_state.score}점**")
+        st.markdown(f"**현재 점수: {st.session_state.score}점**", unsafe_allow_html=True)
 
         # 다음 문제 버튼
         if st.button("➡️ 다음 문제 풀기"):
             st.session_state.step += 1
-            # 5문제마다 레벨 업
             if st.session_state.step % 5 == 0:
                 st.session_state.level = min(3, st.session_state.level + 1)
                 st.success(f"🎯 축하합니다! {st.session_state.level}단계로 올라왔어요!")
             st.session_state.problem_generated = False
             st.rerun()
-
     else:
         st.error("😅 아쉬워요. 다시 한번 생각해볼까요?")
